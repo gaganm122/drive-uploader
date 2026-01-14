@@ -1,3 +1,4 @@
 backend/token.json
 backend/.env
 node_modules
+backend/service-account.json
