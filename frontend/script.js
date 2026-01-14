@@ -16,7 +16,8 @@ fileInput.onchange = () => {
   progressBar.style.width = "0%";
 
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", "http://localhost:5000/upload");
+ xhr.open("POST", "https://drive-uploader-backend-e7wn.onrender.com/upload");
+
 
   xhr.upload.onprogress = (e) => {
     if (e.lengthComputable) {
