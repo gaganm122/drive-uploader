@@ -23,7 +23,10 @@ app.get("/", (req, res) => {
 app.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const result = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: "auto",
+      resource_type: "raw",
+use_filename: true,
+unique_filename: false,
+
     });
 
     fs.unlinkSync(req.file.path);
