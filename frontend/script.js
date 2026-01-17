@@ -16,8 +16,7 @@ fileInput.onchange = () => {
   progressBar.style.width = "0%";
 
   const xhr = new XMLHttpRequest();
- xhr.open("POST", "https://drive-uploader-backend-e7wn.onrender.com/upload");
-
+  xhr.open("POST", "https://drive-uploader-backend-e7wn.onrender.com/upload");
 
   xhr.upload.onprogress = (e) => {
     if (e.lengthComputable) {
@@ -32,9 +31,18 @@ fileInput.onchange = () => {
         const res = JSON.parse(xhr.responseText);
 
         if (res.success) {
-          statusText.textContent = "✅ File uploaded successfully to Google Drive!";
+          statusText.textContent =
+            "✅ File uploaded successfully to Google Drive!";
           progressBar.style.width = "100%";
           alert("Upload completed successfully!");
+
+          const linkDiv = document.getElementById("fileLink");
+
+          linkDiv.innerHTML = `
+    <a href="${res.url}" target="_blank">
+      📥 Download uploaded file
+    </a>
+  `;
         } else {
           throw new Error(res.message || "Upload failed");
         }
