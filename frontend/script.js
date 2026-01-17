@@ -8,6 +8,15 @@ uploadBtn.onclick = () => fileInput.click();
 fileInput.onchange = () => {
   const file = fileInput.files[0];
   if (!file) return;
+  const MAX_SIZE_MB = 5;
+const fileSizeMB = file.size / (1024 * 1024);
+
+if (fileSizeMB > MAX_SIZE_MB) {
+  statusText.textContent = `❌ File too large. Max allowed is ${MAX_SIZE_MB} MB.`;
+  alert("File is too large!");
+  return; // stop here
+}
+
 
   const formData = new FormData();
   formData.append("file", file);
