@@ -8,17 +8,29 @@ uploadBtn.onclick = () => fileInput.click();
 fileInput.onchange = () => {
   const file = fileInput.files[0];
   if (!file) return;
-  const allowedExtensions = ["jpg", "jpeg", "png", "pdf", "doc", "docx"];
+ const allowedExtensions = ["jpg", "jpeg", "png", "pdf", "doc", "docx"];
+const allowedMimeTypes = [
+  "image/jpeg",
+  "image/png",
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+];
 
 const fileName = file.name;
 const fileExtension = fileName.split(".").pop().toLowerCase();
+const mimeType = file.type;
 
-if (!allowedExtensions.includes(fileExtension)) {
+if (
+  !allowedExtensions.includes(fileExtension) ||
+  !allowedMimeTypes.includes(mimeType)
+) {
   statusText.textContent =
     "❌ File type not allowed. Only JPG, PNG, PDF, DOC, DOCX are allowed.";
   alert("Invalid file type!");
   return;
 }
+
 
   const MAX_SIZE_MB = 5;
   const fileSizeMB = file.size / (1024 * 1024);
