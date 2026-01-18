@@ -8,15 +8,26 @@ uploadBtn.onclick = () => fileInput.click();
 fileInput.onchange = () => {
   const file = fileInput.files[0];
   if (!file) return;
-  const MAX_SIZE_MB = 5;
-const fileSizeMB = file.size / (1024 * 1024);
+  const allowedExtensions = ["jpg", "jpeg", "png", "pdf", "doc", "docx"];
 
-if (fileSizeMB > MAX_SIZE_MB) {
-  statusText.textContent = `❌ File too large. Max allowed is ${MAX_SIZE_MB} MB.`;
-  alert("File is too large!");
-  return; // stop here
+const fileName = file.name;
+const fileExtension = fileName.split(".").pop().toLowerCase();
+
+if (!allowedExtensions.includes(fileExtension)) {
+  statusText.textContent =
+    "❌ File type not allowed. Only JPG, PNG, PDF, DOC, DOCX are allowed.";
+  alert("Invalid file type!");
+  return;
 }
 
+  const MAX_SIZE_MB = 5;
+  const fileSizeMB = file.size / (1024 * 1024);
+
+  if (fileSizeMB > MAX_SIZE_MB) {
+    statusText.textContent = `❌ File too large. Max allowed is ${MAX_SIZE_MB} MB.`;
+    alert("File is too large!");
+    return; // stop here
+  }
 
   const formData = new FormData();
   formData.append("file", file);
@@ -59,31 +70,28 @@ if (fileSizeMB > MAX_SIZE_MB) {
         throw new Error("Server error");
       }
     } catch (err) {
-  console.error("Upload error:", err);
+      console.error("Upload error:", err);
 
-  let message = "Unknown error occurred";
+      let message = "Unknown error occurred";
 
-  if (xhr.responseText) {
-    try {
-      const res = JSON.parse(xhr.responseText);
-      if (res.error) message = res.error;
-    } catch {
-      message = xhr.responseText;
+      if (xhr.responseText) {
+        try {
+          const res = JSON.parse(xhr.responseText);
+          if (res.error) message = res.error;
+        } catch {
+          message = xhr.responseText;
+        }
+      }
+
+      statusText.textContent = "❌ Upload failed: " + message;
+      alert("Upload failed:\n" + message);
     }
-  }
-
-  statusText.textContent = "❌ Upload failed: " + message;
-  alert("Upload failed:\n" + message);
-}
-
-    
   };
 
   xhr.onerror = () => {
-  statusText.textContent = "❌ Network error: Cannot reach server.";
-  alert("Network error: Cannot reach server.");
-};
-
+    statusText.textContent = "❌ Network error: Cannot reach server.";
+    alert("Network error: Cannot reach server.");
+  };
 
   xhr.send(formData);
 };
