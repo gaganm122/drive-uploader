@@ -14,13 +14,62 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({ dest: "uploads/" });
+const upload = multer({
+  dest: "uploads/",
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5 MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/png",
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      return cb(new Error("File type not allowed"), false);
+    }
+
+    cb(null, true);
+  },
+});
+
 
 app.get("/", (req, res) => {
   res.send("☁️ Cloudinary backend running");
 });
 
-app.post("/upload", upload.single("file"), async (req, res) => {
+app.post("/upload", (req, res) => {
+  upload.single("file")(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({
+        success: false,
+        error: err.message,
+      });
+    }
+
+    try {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: "raw",
+        use_filename: true,
+        unique_filename: false,
+      });
+
+      fs.unlinkSync(req.file.path);
+
+      res.json({
+        success: true,
+        url: result.secure_url,
+      });
+    } catch (err) {
+      console.error("Upload error:", err);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+});
+
   try {
     const result = await cloudinary.uploader.upload(req.file.path, {
       resource_type: "raw",
@@ -39,7 +88,7 @@ unique_filename: false,
     console.error("Upload error:", err);
     res.status(500).json({ success: false, error: err.message });
   }
-});
+;
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));
