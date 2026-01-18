@@ -59,16 +59,31 @@ if (fileSizeMB > MAX_SIZE_MB) {
         throw new Error("Server error");
       }
     } catch (err) {
-      console.error(err);
-      statusText.textContent = "❌ Upload failed!";
-      alert("Upload failed. Please try again.");
+  console.error("Upload error:", err);
+
+  let message = "Unknown error occurred";
+
+  if (xhr.responseText) {
+    try {
+      const res = JSON.parse(xhr.responseText);
+      if (res.error) message = res.error;
+    } catch {
+      message = xhr.responseText;
     }
+  }
+
+  statusText.textContent = "❌ Upload failed: " + message;
+  alert("Upload failed:\n" + message);
+}
+
+    
   };
 
   xhr.onerror = () => {
-    statusText.textContent = "❌ Network error!";
-    alert("Network error. Is the server running?");
-  };
+  statusText.textContent = "❌ Network error: Cannot reach server.";
+  alert("Network error: Cannot reach server.");
+};
+
 
   xhr.send(formData);
 };
