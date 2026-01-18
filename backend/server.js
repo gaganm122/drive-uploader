@@ -3,44 +3,31 @@ import multer from "multer";
 import cors from "cors";
 import fs from "fs";
 import { v2 as cloudinary } from "cloudinary";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 
 app.use(cors({ origin: "*", methods: ["GET", "POST"] }));
+app.use(express.json());
 
+// Cloudinary config
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({
-  dest: "uploads/",
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5 MB
-  },
-  fileFilter: (req, file, cb) => {
-    const allowedMimeTypes = [
-      "image/jpeg",
-      "image/png",
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ];
+// Multer temp storage
+const upload = multer({ dest: "uploads/" });
 
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-      return cb(new Error("File type not allowed"), false);
-    }
-
-    cb(null, true);
-  },
-});
-
-
+// Health check
 app.get("/", (req, res) => {
   res.send("☁️ Cloudinary backend running");
 });
 
+// Upload route
 app.post("/upload", (req, res) => {
   upload.single("file")(req, res, async (err) => {
     if (err) {
@@ -50,45 +37,43 @@ app.post("/upload", (req, res) => {
       });
     }
 
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: "No file uploaded",
+      });
+    }
+
     try {
       const result = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: "raw",
+        resource_type: "raw",          // IMPORTANT for documents
         use_filename: true,
         unique_filename: false,
       });
 
+      // Remove temp file
       fs.unlinkSync(req.file.path);
 
-      res.json({
+      return res.json({
         success: true,
         url: result.secure_url,
+        filename: result.original_filename,
+        type: result.resource_type,
       });
-    } catch (err) {
-      console.error("Upload error:", err);
-      res.status(500).json({ success: false, error: err.message });
+
+    } catch (error) {
+      console.error("Upload error:", error);
+
+      return res.status(500).json({
+        success: false,
+        error: error.message,
+      });
     }
   });
 });
 
-  try {
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: "raw",
-use_filename: true,
-unique_filename: false,
-
-    });
-
-    fs.unlinkSync(req.file.path);
-
-    res.json({
-      success: true,
-      url: result.secure_url,
-    });
-  } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-;
-
+// Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
