@@ -1,53 +1,160 @@
-* {
-  box-sizing: border-box;
-  font-family: Arial, sans-serif;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
 }
 
-body {
-  margin: 0;
-  background: #0f172a;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+body{
+
+    background:#f4f7fb;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    height:100vh;
+
 }
 
-.container {
-  width: 90%;
-  max-width: 400px;
-  background: #1e293b;
-  padding: 25px;
-  border-radius: 12px;
-  text-align: center;
+.container{
+
+    width:420px;
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:12px;
+
+    box-shadow:0 10px 25px rgba(0,0,0,.1);
+
+    text-align:center;
+
 }
 
-button {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  background: #38bdf8;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+h1{
+
+    color:#333;
+
+    margin-bottom:10px;
+
 }
 
-.progress-box {
-  width: 100%;
-  height: 10px;
-  background: #334155;
-  margin-top: 15px;
-  border-radius: 10px;
-  overflow: hidden;
+.subtitle{
+
+    color:#666;
+
+    margin-bottom:25px;
+
+    font-size:14px;
+
 }
 
-#progress {
-  height: 100%;
-  width: 0%;
-  background: #22c55e;
+button{
+
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+
+    border-radius:8px;
+
+    background:#0066ff;
+
+    color:white;
+
+    font-size:16px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
 }
 
-#status {
-  margin-top: 10px;
-  font-size: 14px;
+button:hover{
+
+    background:#004ecc;
+
+}
+
+button:disabled{
+
+    background:#888;
+
+    cursor:not-allowed;
+
+}
+
+.progress-box{
+
+    width:100%;
+
+    height:12px;
+
+    background:#ddd;
+
+    margin-top:25px;
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+}
+
+#progress{
+
+    width:0%;
+
+    height:100%;
+
+    background:#2ecc71;
+
+    transition:.2s;
+
+}
+
+#status{
+
+    margin-top:20px;
+
+    font-weight:bold;
+
+    min-height:25px;
+
+}
+
+#fileLink{
+
+    margin-top:20px;
+
+}
+
+#fileLink a{
+
+    color:#0066ff;
+
+    font-weight:bold;
+
+    text-decoration:none;
+
+}
+
+#fileLink a:hover{
+
+    text-decoration:underline;
+
+}
+
+@media(max-width:480px){
+
+.container{
+
+    width:90%;
+
+}
+
 }

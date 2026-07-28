@@ -1,28 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drive Uploader</title>
-  <link rel="stylesheet" href="style.css">
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Cloud File Uploader</title>
+
+    <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
-  <div class="container">
-    <h1>Upload to Google Drive</h1>
-    <h2>17-01-2026 checking auto deployment</h2>
 
-    <input type="file" id="fileInput" hidden />
-    <button id="uploadBtn">Choose File</button>
+    <div class="container">
 
-    <div class="progress-box">
-      <div id="progress"></div>
+        <h1>☁️ Cloud File Uploader</h1>
+
+        <p class="subtitle">
+            Upload JPG, PNG, PDF, DOC or DOCX files securely to Cloudinary.
+        </p>
+
+        <input
+            type="file"
+            id="fileInput"
+            hidden
+        >
+
+        <button id="uploadBtn">
+            Choose File
+        </button>
+
+        <div class="progress-box">
+
+            <div id="progress"></div>
+
+        </div>
+
+        <p id="status"></p>
+
+        <div id="fileLink"></div>
+
     </div>
 
-    <p id="status"></p>
-    <div id="fileLink"></div>
-  </div>
+    <script src="script.js"></script>
 
-  <script src="script.js"></script>
 </body>
 
 </html>

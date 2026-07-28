@@ -1,0 +1,19 @@
+{
+  "editor.minimap.enabled": false,
+  "editor.codeLens": false,
+  "editor.inlineSuggest.enabled": false,
+  "breadcrumbs.enabled": false,
+  "git.autofetch": false,
+
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/**": true
+  },
+
+  "search.followSymlinks": false,
+  "typescript.disableAutomaticTypeAcquisition": true,
+
+  "files.exclude": {
+    "**/node_modules": true
+  }
+}

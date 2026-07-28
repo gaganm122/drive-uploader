@@ -2,78 +2,127 @@ import express from "express";
 import multer from "multer";
 import cors from "cors";
 import fs from "fs";
-import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
+import { v2 as cloudinary } from "cloudinary";
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors({ origin: "*", methods: ["GET", "POST"] }));
+app.use(cors());
 app.use(express.json());
 
-// Cloudinary config
+// -------------------------------
+// Cloudinary Configuration
+// -------------------------------
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Multer temp storage
-const upload = multer({ dest: "uploads/" });
-
-// Health check
-app.get("/", (req, res) => {
-  res.send("☁️ Cloudinary backend running");
+// -------------------------------
+// Multer Configuration
+// -------------------------------
+const upload = multer({
+  dest: "uploads/",
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB
+  },
 });
 
-// Upload route
-app.post("/upload", (req, res) => {
-  upload.single("file")(req, res, async (err) => {
-    if (err) {
-      return res.status(400).json({
-        success: false,
-        error: err.message,
-      });
-    }
+// -------------------------------
+// Health Check
+// -------------------------------
+app.get("/", (req, res) => {
+  res.send("✅ Cloudinary Backend Running");
+});
 
+// -------------------------------
+// Upload Route
+// -------------------------------
+app.post("/upload", upload.single("file"), async (req, res) => {
+  try {
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        error: "No file uploaded",
+        error: "No file selected",
       });
     }
 
-    try {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: "raw",          // IMPORTANT for documents
-        use_filename: true,
-        unique_filename: false,
-      });
+    // Allowed file types
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/png",
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
 
-      // Remove temp file
+    if (!allowedMimeTypes.includes(req.file.mimetype)) {
       fs.unlinkSync(req.file.path);
 
-      return res.json({
-        success: true,
-        url: result.secure_url,
-        filename: result.original_filename,
-        type: result.resource_type,
-      });
-
-    } catch (error) {
-      console.error("Upload error:", error);
-
-      return res.status(500).json({
+      return res.status(400).json({
         success: false,
-        error: error.message,
+        error: "Invalid file type.",
       });
     }
+
+    // Detect image
+    const isImage = req.file.mimetype.startsWith("image/");
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: isImage ? "image" : "raw",
+      use_filename: true,
+      unique_filename: false,
+      filename_override: req.file.originalname,
+    });
+
+    // Delete temporary file
+    fs.unlinkSync(req.file.path);
+
+    // Force original filename when downloading
+    const downloadUrl =
+      result.secure_url +
+      "?fl_attachment=" +
+      encodeURIComponent(req.file.originalname);
+
+    res.json({
+      success: true,
+      url: downloadUrl,
+      filename: req.file.originalname,
+      type: result.resource_type,
+    });
+  } catch (error) {
+    console.error(error);
+
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// -------------------------------
+// Invalid Routes
+// -------------------------------
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: "Route not found",
   });
 });
 
-// Start server
+// -------------------------------
+// Start Server
+// -------------------------------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, "0.0.0.0", () => {
+
+app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
