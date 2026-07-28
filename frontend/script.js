@@ -4,24 +4,29 @@ const progressBar = document.getElementById("progress");
 const statusText = document.getElementById("status");
 const fileLink = document.getElementById("fileLink");
 
-// Backend URL
-const API_URL = "https://drive-uploader-backend-e7wn.onrender.com/upload";
+// Change this if your backend URL changes
+const BACKEND_URL = "https://drive-uploader-backend-e7wn.onrender.com";
 
-// Open file picker
+// ------------------------------------
+// Open File Picker
+// ------------------------------------
+
 uploadBtn.addEventListener("click", () => {
     fileInput.click();
 });
 
-// Handle file selection
+// ------------------------------------
+// File Selected
+// ------------------------------------
+
 fileInput.addEventListener("change", () => {
 
     const file = fileInput.files[0];
 
     if (!file) return;
 
-    // -----------------------------
-    // Allowed File Types
-    // -----------------------------
+    // Allowed Extensions
+
     const allowedExtensions = [
         "jpg",
         "jpeg",
@@ -31,6 +36,8 @@ fileInput.addEventListener("change", () => {
         "docx"
     ];
 
+    // Allowed MIME Types
+
     const allowedMimeTypes = [
         "image/jpeg",
         "image/png",
@@ -39,7 +46,10 @@ fileInput.addEventListener("change", () => {
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ];
 
-    const extension = file.name.split(".").pop().toLowerCase();
+    const extension = file.name
+        .split(".")
+        .pop()
+        .toLowerCase();
 
     if (
         !allowedExtensions.includes(extension) ||
@@ -54,11 +64,11 @@ fileInput.addEventListener("change", () => {
         fileInput.value = "";
 
         return;
+
     }
 
-    // -----------------------------
-    // File Size Validation
-    // -----------------------------
+    // Max Size
+
     const MAX_SIZE_MB = 5;
 
     const fileSize = file.size / (1024 * 1024);
@@ -68,21 +78,21 @@ fileInput.addEventListener("change", () => {
         statusText.textContent =
             `❌ Maximum file size is ${MAX_SIZE_MB} MB`;
 
-        alert("File exceeds maximum size.");
+        alert("File size exceeds limit.");
 
         fileInput.value = "";
 
         return;
+
     }
 
     uploadFile(file);
 
 });
 
-
-// =====================================================
+// ------------------------------------
 // Upload Function
-// =====================================================
+// ------------------------------------
 
 function uploadFile(file) {
 
@@ -101,9 +111,7 @@ function uploadFile(file) {
 
     const xhr = new XMLHttpRequest();
 
-    xhr.open("POST", API_URL, true);
-
-    // Progress
+    xhr.open("POST", `${BACKEND_URL}/upload`, true);
 
     xhr.upload.onprogress = (event) => {
 
@@ -119,12 +127,9 @@ function uploadFile(file) {
 
     };
 
-    // Success
-
     xhr.onload = () => {
 
         uploadBtn.disabled = false;
-
         uploadBtn.textContent = "Choose File";
 
         if (xhr.status !== 200) {
@@ -140,9 +145,7 @@ function uploadFile(file) {
             const response = JSON.parse(xhr.responseText);
 
             if (!response.success) {
-
                 throw new Error(response.error);
-
             }
 
             progressBar.style.width = "100%";
@@ -150,17 +153,22 @@ function uploadFile(file) {
             statusText.textContent =
                 "✅ File uploaded successfully.";
 
+            // -------------------------
+            // Download Link
+            // -------------------------
+
             const downloadLink = document.createElement("a");
 
-downloadLink.href =
-`https://drive-uploader-backend-e7wn.onrender.com/download?url=${encodeURIComponent(response.url)}&filename=${encodeURIComponent(response.filename)}`;
+            downloadLink.href =
+                `${BACKEND_URL}/download?url=${encodeURIComponent(response.url)}&filename=${encodeURIComponent(response.filename)}`;
 
-downloadLink.textContent =
-`📥 Download ${response.filename}`;
+            downloadLink.textContent =
+                `📥 Download ${response.filename}`;
 
-fileLink.innerHTML = "";
+            fileLink.innerHTML = "";
 
-fileLink.appendChild(downloadLink);
+            fileLink.appendChild(downloadLink);
+
             fileInput.value = "";
 
         }
@@ -173,8 +181,6 @@ fileLink.appendChild(downloadLink);
         }
 
     };
-
-    // Network Error
 
     xhr.onerror = () => {
 
@@ -191,10 +197,9 @@ fileLink.appendChild(downloadLink);
 
 }
 
-
-// =====================================================
+// ------------------------------------
 // Error Handler
-// =====================================================
+// ------------------------------------
 
 function handleError(xhr) {
 
