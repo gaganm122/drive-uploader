@@ -4,6 +4,7 @@ import cors from "cors";
 import fs from "fs";
 import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
+import https from "https";
 
 dotenv.config();
 
@@ -117,7 +118,45 @@ app.use((req, res) => {
     error: "Route not found",
   });
 });
+// -------------------------------
+// Download Route
+// -------------------------------
+app.get("/download", (req, res) => {
 
+    const { url, filename } = req.query;
+
+    if (!url || !filename) {
+        return res.status(400).json({
+            success: false,
+            error: "Missing parameters"
+        });
+    }
+
+    https.get(url, (cloudinaryRes) => {
+
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename="${filename}"`
+        );
+
+        res.setHeader(
+            "Content-Type",
+            cloudinaryRes.headers["content-type"] ||
+            "application/octet-stream"
+        );
+
+        cloudinaryRes.pipe(res);
+
+    }).on("error", (err) => {
+
+        res.status(500).json({
+            success: false,
+            error: err.message
+        });
+
+    });
+
+});
 // -------------------------------
 // Start Server
 // -------------------------------

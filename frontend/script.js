@@ -152,17 +152,15 @@ function uploadFile(file) {
 
             const downloadLink = document.createElement("a");
 
-            downloadLink.href = response.url;
+downloadLink.href =
+`https://drive-uploader-backend-e7wn.onrender.com/download?url=${encodeURIComponent(response.url)}&filename=${encodeURIComponent(response.filename)}`;
 
-            downloadLink.target = "_blank";
+downloadLink.textContent =
+`📥 Download ${response.filename}`;
 
-            downloadLink.textContent =
-                `📥 Download ${response.filename}`;
+fileLink.innerHTML = "";
 
-            fileLink.innerHTML = "";
-
-            fileLink.appendChild(downloadLink);
-
+fileLink.appendChild(downloadLink);
             fileInput.value = "";
 
         }
